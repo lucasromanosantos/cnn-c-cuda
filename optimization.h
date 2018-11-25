@@ -1,8 +1,6 @@
 #ifndef __OPTIMIZATION__
 #define __OPTIMIZATION__
 
-#include "gradient.h"
-
 #define LEARNING_RATE 0.01
 #define MOMENTUM 0.6
 #define WEIGHT_DECAY 0.001

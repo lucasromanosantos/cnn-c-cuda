@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <math.h>
-
-#include "tensor.h"
-#include "gradient.h"
-#include "optimization.h"
+#ifndef __CONV_LAYER__
+#define __CONV_LAYER__
 
 #define DEPTH 1
 
@@ -13,13 +9,10 @@ struct Conv_Layer {
   Tensor out;
 
   Tensor *filters;
-
-  // Gradient *filter_grads;
   Tensor *filter_grads;
   Tensor *filter_old_grads;
 
   int stride;
-
   int number_of_filters;
   int size_of_filter;
 };
@@ -30,7 +23,6 @@ struct Range {
   int max_x, max_y, max_z;
 };
 typedef struct Range *Range;
-
 
 Conv_Layer init_convolutional_layer(int in_size) {
   Conv_Layer conv_layer = malloc(sizeof(struct Conv_Layer));
@@ -60,8 +52,8 @@ Conv_Layer init_convolutional_layer(int in_size) {
       conv_layer->filters[c] = t;
   }
 
-  conv_layer->filter_grads = malloc(sizeof(Gradient) * number_of_filters);
-  conv_layer->filter_old_grads = malloc(sizeof(Gradient) * number_of_filters);
+  conv_layer->filter_grads = malloc(sizeof(Tensor) * number_of_filters);
+  conv_layer->filter_old_grads = malloc(sizeof(Tensor) * number_of_filters);
   for (int c = 0; c < number_of_filters; c += 1) {
     Tensor t = initialize_tensor(size_of_filter, size_of_filter, 1);
     conv_layer->filter_grads[c] = t;
@@ -126,7 +118,6 @@ Range map_to_output(Conv_Layer l, int x, int y) {
 }
 
 void calc_conv_grads(Conv_Layer layer, Tensor grad_next_layer) {
-
   for (int k = 0; k < layer->number_of_filters; k += 1)
     for (int i = 0; i < layer->size_of_filter; i += 1)
       for (int j = 0; j < layer->size_of_filter; j += 1)
@@ -159,8 +150,6 @@ void calc_conv_grads(Conv_Layer layer, Tensor grad_next_layer) {
 }
 
 void fix_conv_weights(Conv_Layer layer) {
-  // printf("velho: \n");
-  // print_tensor(layer->filters[0]);
   for (int a = 0; a < layer->number_of_filters; a += 1)
     for (int i = 0; i < layer->size_of_filter; i += 1)
       for (int j = 0; j < layer->size_of_filter; j += 1)
@@ -170,8 +159,7 @@ void fix_conv_weights(Conv_Layer layer) {
           float *old_grad = &layer->filter_old_grads[a]->data[idx(layer->filter_old_grads[a], i, j, z)];
           *w = update_weight(*w, *grad, *old_grad, 1);
           update_gradient(*grad, old_grad);
-          // printf("novo: %f\n", layer->filters[a]->data[idx(layer->filters[a], i, j, z)]);
         }
-  // printf("novo: \n");
-  // print_tensor(layer->filters[0]);
 }
+
+#endif

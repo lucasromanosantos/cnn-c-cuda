@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <math.h>
-
-#include "tensor.h"
-#include "gradient.h"
+#ifndef __FC_LAYER__
+#define __FC_LAYER__
 
 #define OUT_SIZE 10
 
@@ -13,16 +10,10 @@ struct FC_Layer {
   Tensor weights;
 
   float *input;
-
-  // Gradient *gradients;
   float *gradients;
   float *old_gradients;
 };
 typedef struct FC_Layer *FC_Layer;
-
-// int idx(Tensor t, int x, int y, int z) {
-//   return (z * t->height * t->width) + (y * t->width) + x;
-// }
 
 FC_Layer init_fc_layer(int width, int height, int depth) {
   FC_Layer fc_layer = malloc(sizeof(struct FC_Layer));
@@ -33,13 +24,10 @@ FC_Layer init_fc_layer(int width, int height, int depth) {
   fc_layer->input = malloc(sizeof(float) * OUT_SIZE);
   fc_layer->weights = initialize_tensor(width * height * depth, OUT_SIZE, 1);
 
-
   int maxval = width * height * depth;
   for (int i = 0; i < OUT_SIZE; i += 1)
     for (int h = 0; h < width * height * depth; h += 1) {
-      // fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)] = 2.19722f / (float) maxval * rand() / (float) RAND_MAX;
       fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)] = 2.19722f / (float) maxval * rand() / (float) RAND_MAX;
-      // fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)] = fabs(fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)]);
     }
 
   fc_layer->gradients = malloc(sizeof(float) * OUT_SIZE);
@@ -58,7 +46,6 @@ float activator_function(float x) {
 
 void activate_fc(FC_Layer layer, Tensor data) {
   layer->in = data;
-
   for (int n = 0; n < layer->out->width; n += 1) { // 10
     float inputv = 0;
     for (int i = 0; i < layer->in->width; i += 1)
@@ -77,8 +64,6 @@ float activator_derivative(float x) {
   return sig * (1 - sig);
 }
 
-
-// LAYER_WEIGHTS OK
 void calc_fc_grads(FC_Layer layer, Tensor grad_next_layer) {
   for (int i = 0; i < layer->in->width * layer->in->height * layer->in->depth; i += 1) {
     layer->grads_in->data[i] = 0;
@@ -96,7 +81,6 @@ void calc_fc_grads(FC_Layer layer, Tensor grad_next_layer) {
             *grad * layer->weights->data[idx(layer->weights, m, n, 0)];
         }
   }
-  // print_tensor(layer->in);
 }
 
 void fix_fc_weights(FC_Layer layer) {
@@ -112,5 +96,6 @@ void fix_fc_weights(FC_Layer layer) {
         }
     update_gradient(grad, old_grad);
   }
-  // print_tensor(layer->weights);
 }
+
+#endif

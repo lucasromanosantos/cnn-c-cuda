@@ -1,12 +1,7 @@
-#include <stdio.h>
-#include <math.h>
-#include <float.h>
+#ifndef __POOL_LAYER__
+#define __POOL_LAYER__
 
-#include "tensor.h"
-#include "gradient.h"
-#include "optimization.h"
-
-#define DEPTH 1
+#define EPSILON 0.000001
 
 struct Pool_Layer {
   Tensor grads_in;
@@ -77,23 +72,18 @@ Range map_to_pool_output(Pool_Layer l, int x, int y) {
 }
 
 void calc_pool_grads(Pool_Layer layer, Tensor grad_next_layer) {
-  float ERROR_MAX = 0.000001;
-  // print_tensor(grad_next_layer);
-  // printf("%d x %d\n", layer->in->width, layer->in->height);
+
   for (int x = 0; x < layer->in->width; x += 1) {
     for (int y = 0; y < layer->in->height; y += 1) {
       Range range = map_to_pool_output(layer, x, y);
-      // printf("minx: %d, maxx: %d, miny: %d, maxy: %d\n", range->min_x, range->max_x, range->min_y, range->max_y);
       for (int z = 0; z < layer->in->depth; z += 1) {
         float sum_error = 0;
         for (int i = range->min_x; i <= range->max_x; i += 1)
           for (int j = range->min_y; j <= range->max_y; j += 1) {
             int is_max = 1;
-            if (fabs(layer->in->data[idx(layer->in, x, y, z)] - layer->out->data[idx(layer->out, i, j, z)]) > ERROR_MAX) {
+            if (fabs(layer->in->data[idx(layer->in, x, y, z)] - layer->out->data[idx(layer->out, i, j, z)]) > EPSILON) {
               is_max = 0;
             }
-            // printf("sum_error += %d (%0.5f %0.5f) * %f\n", is_max, layer->in->data[idx(layer->in, x, y, z)],
-            //   layer->out->data[idx(layer->out, i, j, z)], grad_next_layer->data[idx(grad_next_layer, i, j, z)]);
             sum_error += is_max * grad_next_layer->data[idx(grad_next_layer, i, j, z)];
           }
         layer->grads_in->data[idx(layer->grads_in, x, y, z)] = sum_error;
@@ -102,3 +92,4 @@ void calc_pool_grads(Pool_Layer layer, Tensor grad_next_layer) {
   }
 }
 
+#endif

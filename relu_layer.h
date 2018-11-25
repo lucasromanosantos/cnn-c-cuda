@@ -1,4 +1,5 @@
-#include "tensor.h"
+#ifndef __RELU_LAYER__
+#define __RELU_LAYER__
 
 struct Relu_Layer {
   Tensor grads_in;
@@ -6,10 +7,6 @@ struct Relu_Layer {
   Tensor out;
 };
 typedef struct Relu_Layer *Relu_Layer;
-
-// int idx(Tensor t, int x, int y, int z) {
-//   return (z * t->height * t->width) + (y * t->width) + x;
-// }
 
 Relu_Layer init_relu_layer(int width, int height, int depth) {
   Relu_Layer relu_layer = malloc(sizeof(struct Relu_Layer));
@@ -44,3 +41,5 @@ void calc_relu_grads(Relu_Layer layer, Tensor grad_next_layer) {
 }
 
 void fix_relu_weights() {}
+
+#endif

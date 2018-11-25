@@ -1,11 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
+#include <float.h>
 
 #define USE_MNIST_LOADER
 #define MNIST_DOUBLE
 #include "mnist.h"
 
 #include "tensor.h"
+#include "optimization.h"
 #include "conv_layer.h"
 #include "relu_layer.h"
 #include "pool_layer.h"
@@ -34,31 +37,25 @@ void initialize_cnn() {
 }
 
 float train() {
-
-  // printf("\ttrain images = %d\n", train_cnt);
   float err_total = 0;
   for (int i = 0; i < train_cnt; i += 1) {
-    // if (i >= 50) break; // TEMP
-    // if (i >= 2) break;
 
-    float *data = malloc(sizeof(float) * 28 * 28 * 50); // AAAA
+    float *data = malloc(sizeof(float) * 28 * 28 * 50);
     for (int x = 0; x < 28; ++x) {
       for (int y = 0; y < 28; ++y) {
         data[x * 28 + y] = train_set[i].data[x][y];
       }
     }
-    //
+
     Tensor expected = initialize_tensor(10, 1, 1);
     for (int b = 0; b < 10; b += 1)
       expected->data[idx(expected, b, 0, 0)] = train_set[i].label == b ? 1.0f : 0.0f;
 
 
-    // 1. inference OK
+    // 1. inference
     activate_convolutional(conv_1, data);
-
     activate_relu(relu_2, conv_1->out);
     activate_pooling(pool_3, relu_2->out);
-    // print_tensor(relu2->out);
     activate_fc(fc_4, pool_3->out);
 
     Tensor grads = subtract_tensor(fc_4->out, expected);
@@ -98,7 +95,5 @@ int main() {
   printf("2. initializing cnn...\n");
   printf("3. training...\n");
   train();
-  printf("===== cabou!\n");
-
-
+  printf("===== end!\n");
 }
