@@ -165,7 +165,6 @@ void fix_conv_weights(Conv_Layer layer) {
     for (int i = 0; i < layer->size_of_filter; i += 1)
       for (int j = 0; j < layer->size_of_filter; j += 1)
         for (int z = 0; z < DEPTH; z += 1) {
-          // printf("velho: %f\n", layer->filters[a]->data[idx(layer->filters[a], i, j, z)]);
           float *w = &layer->filters[a]->data[idx(layer->filters[a], i, j, z)];
           float *grad = &layer->filter_grads[a]->data[idx(layer->filter_grads[a], i, j, z)];
           float *old_grad = &layer->filter_old_grads[a]->data[idx(layer->filter_old_grads[a], i, j, z)];

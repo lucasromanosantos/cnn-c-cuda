@@ -39,7 +39,7 @@ FC_Layer init_fc_layer(int width, int height, int depth) {
     for (int h = 0; h < width * height * depth; h += 1) {
       // fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)] = 2.19722f / (float) maxval * rand() / (float) RAND_MAX;
       fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)] = 2.19722f / (float) maxval * rand() / (float) RAND_MAX;
-      fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)] = fabs(fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)]);
+      // fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)] = fabs(fc_layer->weights->data[idx(fc_layer->weights, h, i, 0)]);
     }
 
   fc_layer->gradients = malloc(sizeof(float) * OUT_SIZE);
@@ -78,11 +78,11 @@ float activator_derivative(float x) {
 }
 
 
+// LAYER_WEIGHTS OK
 void calc_fc_grads(FC_Layer layer, Tensor grad_next_layer) {
   for (int i = 0; i < layer->in->width * layer->in->height * layer->in->depth; i += 1) {
     layer->grads_in->data[i] = 0;
   }
-  // print_tensor(grad_next_layer);
 
   for (int n = 0; n < layer->out->width; n += 1) {
     float *grad = &layer->gradients[n];
@@ -96,6 +96,7 @@ void calc_fc_grads(FC_Layer layer, Tensor grad_next_layer) {
             *grad * layer->weights->data[idx(layer->weights, m, n, 0)];
         }
   }
+  // print_tensor(layer->in);
 }
 
 void fix_fc_weights(FC_Layer layer) {
@@ -111,4 +112,5 @@ void fix_fc_weights(FC_Layer layer) {
         }
     update_gradient(grad, old_grad);
   }
+  // print_tensor(layer->weights);
 }

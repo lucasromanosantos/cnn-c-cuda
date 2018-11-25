@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-
 #define USE_MNIST_LOADER
 #define MNIST_DOUBLE
 #include "mnist.h"
@@ -35,27 +34,31 @@ void initialize_cnn() {
 }
 
 float train() {
+
   // printf("\ttrain images = %d\n", train_cnt);
+  float err_total = 0;
   for (int i = 0; i < train_cnt; i += 1) {
     // if (i >= 50) break; // TEMP
-    if (i >= 1 ) break;
+    // if (i >= 2) break;
 
     float *data = malloc(sizeof(float) * 28 * 28 * 50); // AAAA
-    for (int i = 0; i < 28; ++i) {
-      for (int j = 0; j < 28; ++j) {
-        data[i * 28 + j] = train_set[0].data[i][j];
+    for (int x = 0; x < 28; ++x) {
+      for (int y = 0; y < 28; ++y) {
+        data[x * 28 + y] = train_set[i].data[x][y];
       }
     }
     //
     Tensor expected = initialize_tensor(10, 1, 1);
     for (int b = 0; b < 10; b += 1)
-      expected->data[idx(expected, b, 0, 0)] = train_set[0].label == b ? 1.0f : 0.0f;
+      expected->data[idx(expected, b, 0, 0)] = train_set[i].label == b ? 1.0f : 0.0f;
 
 
     // 1. inference OK
     activate_convolutional(conv_1, data);
+
     activate_relu(relu_2, conv_1->out);
     activate_pooling(pool_3, relu_2->out);
+    // print_tensor(relu2->out);
     activate_fc(fc_4, pool_3->out);
 
     Tensor grads = subtract_tensor(fc_4->out, expected);
@@ -63,11 +66,8 @@ float train() {
     // 2. gradient
     calc_fc_grads(fc_4, grads);
     calc_pool_grads(pool_3, fc_4->grads_in);
-    // print_tensor(pool_3->grads_in);
-    // print_tensor(fc_4->grads_in);
     calc_relu_grads(relu_2, pool_3->grads_in);
     calc_conv_grads(conv_1, relu_2->grads_in);
-    print_tensor(conv_1->grads_in);
 
     // 3. fix weights
     fix_conv_weights(conv_1);
@@ -75,14 +75,16 @@ float train() {
     fix_fc_weights(fc_4);
 
     // if (i % 1000 == 0) {
-      float err = 0;
-      for (int a = 0; a < grads->width * grads->height * grads->depth; a += 1) {
-        float f = expected->data[a];
-        if (f > 0.5)
-          err += fabs(grads->data[a]);
-      }
-      err *= 100;
-      printf("image %d err %f\n", i, err);
+    float err = 0;
+    for (int a = 0; a < grads->width * grads->height * grads->depth; a += 1) {
+      float f = expected->data[a];
+      if (f > 0.5)
+        err += fabs(grads->data[a]);
+    }
+    err *= 100;
+    err_total += err;
+
+    printf("image %d err %f\n", i, err_total / (i + 1));
     // }
 
   }

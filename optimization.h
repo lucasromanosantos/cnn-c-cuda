@@ -3,7 +3,7 @@
 
 #include "gradient.h"
 
-#define LEARNING_RATE 0.1
+#define LEARNING_RATE 0.01
 #define MOMENTUM 0.6
 #define WEIGHT_DECAY 0.001
 
@@ -14,7 +14,7 @@ float update_weight(float w, float grad, float old_grad, float multp) {
 }
 
 void update_gradient(float grad, float *old_grad) {
-  *old_grad = (grad + (*old_grad * MOMENTUM));
+  *old_grad = (grad + *old_grad * MOMENTUM);
 }
 
 #endif
