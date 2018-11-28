@@ -3,6 +3,8 @@
 
 #define DEPTH 1
 
+#include "conv_layer_kernels.h"
+
 struct Conv_Layer {
   Tensor grads_in;
   Tensor in;
@@ -65,10 +67,18 @@ Conv_Layer init_convolutional_layer(int in_size) {
   return conv_layer;
 }
 
-
 void activate_convolutional(Conv_Layer layer, float *data) {
-  layer->in = initialize_tensor(28, 28, 1); // tirar
   layer->in->data = data;
+
+  #ifdef GPU
+    float* mapped_weights = malloc(sizeof(float) * 8 * 5 * 5);
+    for (int i = 0; i < layer->number_of_filters; i += 1) {
+      int offset = 5 * 5 * i;
+      memcpy(mapped_weights + offset, layer->filters[i]->data, 5 * 5 * sizeof(float));
+    }
+    activate_convolutional_gpu(layer->in->data, mapped_weights, layer->out->data);
+    return;
+  #endif
 
   for (int filter = 0; filter < layer->number_of_filters; filter += 1) {
     Tensor filter_data = layer->filters[filter];

@@ -1,6 +1,8 @@
 #ifndef __FC_LAYER__
 #define __FC_LAYER__
 
+#include "fc_layer_kernels.h"
+
 #define OUT_SIZE 10
 
 struct FC_Layer {
@@ -46,6 +48,12 @@ float activator_function(float x) {
 
 void activate_fc(FC_Layer layer, Tensor data) {
   layer->in = data;
+
+  #ifdef GPU
+    activate_fc_gpu(layer->in->data, layer->weights->data, layer->out->data);
+    return;
+  #endif
+
   for (int n = 0; n < layer->out->width; n += 1) { // 10
     float inputv = 0;
     for (int i = 0; i < layer->in->width; i += 1)

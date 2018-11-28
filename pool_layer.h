@@ -1,6 +1,8 @@
 #ifndef __POOL_LAYER__
 #define __POOL_LAYER__
 
+#include "pool_layer_kernels.h"
+
 #define EPSILON 0.000001
 
 struct Pool_Layer {
@@ -28,6 +30,12 @@ Pool_Layer init_pool_layer(int width, int height, int depth) {
 
 void activate_pooling(Pool_Layer layer, Tensor data) {
   layer->in = data;
+
+  #ifdef GPU
+    activate_pooling_gpu(layer->in->data, layer->out->data);
+    return;
+  #endif
+
   for (int x = 0; x < layer->out->width; x += 1)
     for (int y = 0; y < layer->out->height; y += 1)
       for (int z = 0; z < layer->out->depth; z += 1) {
@@ -45,13 +53,11 @@ void activate_pooling(Pool_Layer layer, Tensor data) {
       }
 }
 
-void fix_weights() {}
-
  int normalize_pool_range(float f, int max, int is_limit_min) {
    if (f <= 0)
      return 0;
    if (f >= (max - 1))
-     return max - 1; // <= -1
+     return max - 1;
    if (is_limit_min) // left side of inequality
      return ceil(f);
    else
@@ -72,7 +78,6 @@ Range map_to_pool_output(Pool_Layer l, int x, int y) {
 }
 
 void calc_pool_grads(Pool_Layer layer, Tensor grad_next_layer) {
-
   for (int x = 0; x < layer->in->width; x += 1) {
     for (int y = 0; y < layer->in->height; y += 1) {
       Range range = map_to_pool_output(layer, x, y);

@@ -1,6 +1,8 @@
 #ifndef __RELU_LAYER__
 #define __RELU_LAYER__
 
+#include "relu_layer_kernels.h"
+
 struct Relu_Layer {
   Tensor grads_in;
   Tensor in;
@@ -20,6 +22,11 @@ Relu_Layer init_relu_layer(int width, int height, int depth) {
 
 void activate_relu(Relu_Layer layer, Tensor data) {
   layer->in = data;
+
+  #ifdef GPU
+    activate_relu_gpu(layer->in->data, layer->out->data);
+    return;
+  #endif
 
   for (int i = 0; i < layer->in->width; i += 1)
     for (int j = 0; j < layer->in->height; j += 1)
