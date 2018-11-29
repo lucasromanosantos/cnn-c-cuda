@@ -2,11 +2,13 @@
 #include <stdio.h>
 #include <math.h>
 #include <float.h>
+#include <time.h>
 
 #define USE_MNIST_LOADER
 #define MNIST_DOUBLE
 #include "mnist.h"
 
+#include "main.h"
 #include "tensor.h"
 #include "optimization.h"
 #include "conv_layer.h"
@@ -14,7 +16,7 @@
 #include "pool_layer.h"
 #include "fc_layer.h"
 
-#define MAX_TRAIN 60000
+#define MAX_TRAIN 5000
 
 static mnist_data *train_set, *test_set;
 static unsigned int train_cnt, test_cnt;

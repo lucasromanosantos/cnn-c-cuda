@@ -49,11 +49,16 @@ float activator_function(float x) {
 void activate_fc(FC_Layer layer, Tensor data) {
   layer->in = data;
 
+  clock_t t;
   #ifdef GPU
+    t = clock();
     activate_fc_gpu(layer->in->data, layer->weights->data, layer->out->data);
+    t = clock() - t;
+    if (VERBOSE) printf("(gpu) fc: %f seconds\n", (double) t / CLOCKS_PER_SEC);
     return;
   #endif
 
+  t = clock();
   for (int n = 0; n < layer->out->width; n += 1) { // 10
     float inputv = 0;
     for (int i = 0; i < layer->in->width; i += 1)
@@ -65,6 +70,9 @@ void activate_fc(FC_Layer layer, Tensor data) {
     layer->input[n] = inputv; // ?
     layer->out->data[idx(layer->out, n, 0, 0)] = activator_function(inputv);
   }
+
+  t = clock() - t;
+  if (VERBOSE) printf("(cpu) fc: %f seconds\n", (double) t / CLOCKS_PER_SEC);
 }
 
 float activator_derivative(float x) {

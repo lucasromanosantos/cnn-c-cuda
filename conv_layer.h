@@ -75,16 +75,21 @@ Conv_Layer init_convolutional_layer(int in_size) {
 void activate_convolutional(Conv_Layer layer, float *data) {
   layer->in->data = data;
 
+  clock_t t;
   #ifdef GPU
     float* mapped_weights = malloc(sizeof(float) * 8 * 5 * 5);
     for (int i = 0; i < layer->number_of_filters; i += 1) {
       int offset = 5 * 5 * i;
       memcpy(mapped_weights + offset, layer->filters[i]->data, 5 * 5 * sizeof(float));
     }
+    t = clock();
     activate_convolutional_gpu(layer->in->data, mapped_weights, layer->out->data);
+    t = clock() - t;
+    if (VERBOSE) printf("(gpu) conv: %f seconds\n", (double) t / CLOCKS_PER_SEC);
     return;
   #endif
 
+  t = clock();
   for (int filter = 0; filter < layer->number_of_filters; filter += 1) {
     Tensor filter_data = layer->filters[filter];
     for (int x = 0; x < layer->out->width; x += 1)
@@ -104,6 +109,8 @@ void activate_convolutional(Conv_Layer layer, float *data) {
         layer->out->data[idx(layer->out, x, y, filter)] = sum;
       }
   }
+  t = clock() - t;
+  if (VERBOSE) printf("(cpu) conv: %f seconds\n", (double) t / CLOCKS_PER_SEC);
 }
 
 

@@ -31,11 +31,16 @@ Pool_Layer init_pool_layer(int width, int height, int depth) {
 void activate_pooling(Pool_Layer layer, Tensor data) {
   layer->in = data;
 
+  clock_t t;
   #ifdef GPU
+    t = clock();
     activate_pooling_gpu(layer->in->data, layer->out->data);
+    t = clock() - t;
+    if (VERBOSE) printf("(gpu) pool: %f seconds\n", (double) t / CLOCKS_PER_SEC);
     return;
   #endif
 
+  t = clock();
   for (int x = 0; x < layer->out->width; x += 1)
     for (int y = 0; y < layer->out->height; y += 1)
       for (int z = 0; z < layer->out->depth; z += 1) {
@@ -51,6 +56,9 @@ void activate_pooling(Pool_Layer layer, Tensor data) {
 
         layer->out->data[idx(layer->out, x, y, z)] = max;
       }
+
+  t = clock() - t;
+  if (VERBOSE) printf("(cpu) pool: %f seconds\n", (double) t / CLOCKS_PER_SEC);
 }
 
  int normalize_pool_range(float f, int max, int is_limit_min) {
