@@ -58,9 +58,14 @@ Conv_Layer init_convolutional_layer(int in_size) {
   conv_layer->filter_old_grads = malloc(sizeof(Tensor) * number_of_filters);
   for (int c = 0; c < number_of_filters; c += 1) {
     Tensor t = initialize_tensor(size_of_filter, size_of_filter, 1);
-    conv_layer->filter_grads[c] = t;
-
     Tensor t2 = initialize_tensor(size_of_filter, size_of_filter, 1);
+
+    for (int a = 0; a < size_of_filter * size_of_filter * 1; a += 1) {
+      t->data[a] = 0;
+      t2->data[a] = 0;
+    }
+
+    conv_layer->filter_grads[c] = t;
     conv_layer->filter_old_grads[c] = t2;
   }
 
@@ -145,7 +150,7 @@ void calc_conv_grads(Conv_Layer layer, Tensor grad_next_layer) {
           for (int j = r->min_y; j <= r->max_y; j += 1) {
             int miny = j * layer->stride;
             for (int k = r->min_z; k <= r->max_z; k += 1) {
-              float w_applied = layer->filters[k]->data[idx(layer->filters[k], x - minx, y - miny, z)];
+              int w_applied = layer->filters[k]->data[idx(layer->filters[k], x - minx, y - miny, z)]; // !!!!!!! int?
               sum_error += w_applied * grad_next_layer->data[idx(grad_next_layer, i, j, k)];
               float a = layer->in->data[idx(layer->in, x, y, z)];
               float b = grad_next_layer->data[idx(grad_next_layer, i, j, k)];
@@ -163,12 +168,12 @@ void fix_conv_weights(Conv_Layer layer) {
   for (int a = 0; a < layer->number_of_filters; a += 1)
     for (int i = 0; i < layer->size_of_filter; i += 1)
       for (int j = 0; j < layer->size_of_filter; j += 1)
-        for (int z = 0; z < DEPTH; z += 1) {
+        for (int z = 0; z < 1; z += 1) {
           float *w = &layer->filters[a]->data[idx(layer->filters[a], i, j, z)];
           float *grad = &layer->filter_grads[a]->data[idx(layer->filter_grads[a], i, j, z)];
           float *old_grad = &layer->filter_old_grads[a]->data[idx(layer->filter_old_grads[a], i, j, z)];
           *w = update_weight(*w, *grad, *old_grad, 1);
-          update_gradient(*grad, old_grad);
+          *old_grad = update_gradient(*grad, old_grad);
         }
 }
 

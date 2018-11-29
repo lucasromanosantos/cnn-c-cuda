@@ -24,18 +24,18 @@ Tensor initialize_tensor(float width, float height, float depth) {
 }
 
 static void print_tensor(Tensor t) {
-	int mx = t->width;
-	int my = t->height;
-	int mz = t->depth;
+  int mx = t->width;
+  int my = t->height;
+  int mz = t->depth;
 
-	for (int z = 0; z < mz; z++ ) {
-		printf( "[Dim%d]\n", z);
-		for (int y = 0; y < my; y++ ) {
-			for (int x = 0; x < mx; x++ )
-				printf( "%.4f ", t->data[idx(t, x, y, z)]);
-			printf( "\n" );
-		}
-	}
+  for (int z = 0; z < mz; z++ ) {
+    printf( "[Dim%d]\n", z);
+    for (int y = 0; y < my; y++ ) {
+      for (int x = 0; x < mx; x++ )
+        printf( "%.4f ", t->data[idx(t, x, y, z)]);
+      printf( "\n" );
+    }
+  }
 }
 
 Tensor subtract_tensor(Tensor a, Tensor b) {
@@ -47,3 +47,4 @@ Tensor subtract_tensor(Tensor a, Tensor b) {
 }
 
 #endif
+
