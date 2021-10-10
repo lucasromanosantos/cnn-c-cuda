@@ -3,6 +3,7 @@
 #include <math.h>
 #include <float.h>
 #include <time.h>
+
 #define USE_MNIST_LOADER
 #define MNIST_DOUBLE
 #include "mnist.h"
@@ -261,5 +262,5 @@ int main() {
   train();
   printf("4. inference...\n");
   inference();
-  printf("==== end!\n");
+  printf("===== end!\n");
 }
