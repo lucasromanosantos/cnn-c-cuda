@@ -75,7 +75,7 @@ Tensor load_tensor(const char *layer_name, const char *tensor_name) {
   char *f_name = NULL;
   asprintf(&f_name, "%s_%s.bin", layer_name, tensor_name);
 
-  FILE *file= fopen(f_name, "w");
+  FILE *file= fopen(f_name, "r");
 
   fread(&t->width, sizeof(int), 1, file);
   fread(&t->height, sizeof(int), 1, file);
