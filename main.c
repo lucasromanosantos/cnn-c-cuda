@@ -126,11 +126,77 @@ void save_model() {
   save_tensor(conv_1->in, "conv_1", "in");
   save_tensor(conv_1->out, "conv_1", "out");
 
+  FILE *file = fopen("conv_1_params", "w");
+  fwrite(&conv_1->stride, sizeof(int), 1, file);
+  fwrite(&conv_1->number_of_filters, sizeof(int), 1, file);
+  fwrite(&conv_1->size_of_filter, sizeof(int), 1, file);
+  fclose(file);
+
   for (int i = 0; i < conv_1->number_of_filters; i++) {
     char *name = NULL;
     asprintf(&name, "filters_%d", i);
 
     save_tensor(conv_1->filters[i], "conv_1", name);
+
+    free(name);
+  }
+
+  for (int i = 0; i < conv_1->number_of_filters; i++) {
+    char *name = NULL;
+    asprintf(&name, "filter_grads_%d", i);
+
+    save_tensor(conv_1->filter_grads[i], "conv_1", name);
+
+    free(name);
+  }
+
+  for (int i = 0; i < conv_1->number_of_filters; i++) {
+    char *name = NULL;
+    asprintf(&name, "filter_old_grads_%d", i);
+
+    save_tensor(conv_1->filter_old_grads[i], "conv_1", name);
+
+    free(name);
+  }
+}
+
+void load_model() {
+  conv_1->grads_in = load_tensor("conv_1", "grads_in");
+  conv_1->in = load_tensor("conv_1", "in");
+  conv_1->out = load_tensor("conv_1", "out");
+
+  FILE *file = fopen("conv_1_params", "r");
+  fread(&conv_1->stride, sizeof(int), 1, file);
+  fread(&conv_1->number_of_filters, sizeof(int), 1, file);
+  fread(&conv_1->size_of_filter, sizeof(int), 1, file);
+  fclose(file);
+
+  conv_1->filters = malloc(conv_1->number_of_filters * sizeof(Tensor));
+  for (int i = 0; i < conv_1->number_of_filters; i++) {
+    char *name = NULL;
+    asprintf(&name, "filters_%d", i);
+
+    conv_1->filters[i] = load_tensor("conv_1", name);
+
+    free(name);
+  }
+
+  conv_1->filter_grads = malloc(conv_1->number_of_filters * sizeof(Tensor));
+  for (int i = 0; i < conv_1->number_of_filters; i++) {
+    char *name = NULL;
+    asprintf(&name, "filter_grads_%d", i);
+
+    conv_1->filter_grads[i] = load_tensor("conv_1", name);
+
+    free(name);
+  }
+
+  conv_1->filter_old_grads = malloc(conv_1->number_of_filters * sizeof(Tensor));
+  for (int i = 0; i < conv_1->number_of_filters; i++) {
+    char *name = NULL;
+    asprintf(&name, "filter_old_grads_%d", i);
+
+    conv_1->filter_old_grads[i] = load_tensor("conv_1", name);
 
     free(name);
   }
