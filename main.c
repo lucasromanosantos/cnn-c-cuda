@@ -3,7 +3,6 @@
 #include <math.h>
 #include <float.h>
 #include <time.h>
-#include <unistd.h>
 #define USE_MNIST_LOADER
 #define MNIST_DOUBLE
 #include "mnist.h"
@@ -260,4 +259,7 @@ int main() {
   initialize_cnn();
   printf("3. training...\n");
   train();
+  printf("4. inference...\n");
+  inference();
+  printf("==== end!\n");
 }
