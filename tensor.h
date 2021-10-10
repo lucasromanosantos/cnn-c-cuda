@@ -46,5 +46,27 @@ Tensor subtract_tensor(Tensor a, Tensor b) {
   return t;
 }
 
-#endif
+char save_tensor(Tensor t, const char *layer_name, const char *tensor_name){
+  int tensor_size = (3 * sizeof(int)) + (sizeof(float) * t->width * t->height * t->depth);
 
+  char* result_buffer;
+  result_buffer = malloc(tensor_size);
+
+  memcpy(result_buffer, &t->width, sizeof(int));
+  memcpy(result_buffer + sizeof(int), &t->height, sizeof(int));
+  memcpy(result_buffer + 2 * sizeof(int), &t->depth, sizeof(int));
+  memcpy(result_buffer + 3 * sizeof(int), t->data, sizeof(float) * t->width * t->height * t->depth );
+
+  printf("sizeof tensor is %d bytes\n", tensor_size);
+
+  char *f_name = NULL;
+  asprinf(&f_name, "%s_%s.bin", layer_name, tensor_name);
+
+  FILE * file= fopen(f_name, "w");
+
+  fwrite(result_buffer, tensor_size, 1, file);
+  fclose(file);
+  free(f_name);
+}
+
+#endif
