@@ -46,7 +46,7 @@ Tensor subtract_tensor(Tensor a, Tensor b) {
   return t;
 }
 
-char save_tensor(Tensor t, const char *layer_name, const char *tensor_name){
+void save_tensor(Tensor t, const char *layer_name, const char *tensor_name){
   int tensor_size = (3 * sizeof(int)) + (sizeof(float) * t->width * t->height * t->depth);
 
   char* result_buffer;
@@ -55,7 +55,7 @@ char save_tensor(Tensor t, const char *layer_name, const char *tensor_name){
   memcpy(result_buffer, &t->width, sizeof(int));
   memcpy(result_buffer + sizeof(int), &t->height, sizeof(int));
   memcpy(result_buffer + 2 * sizeof(int), &t->depth, sizeof(int));
-  memcpy(result_buffer + 3 * sizeof(int), t->data, sizeof(float) * t->width * t->height * t->depth );
+  memcpy(result_buffer + 3 * sizeof(int), t->data, sizeof(float) * t->width * t->height * t->depth);
 
   printf("sizeof tensor is %d bytes\n", tensor_size);
 
@@ -67,6 +67,27 @@ char save_tensor(Tensor t, const char *layer_name, const char *tensor_name){
   fwrite(result_buffer, tensor_size, 1, file);
   fclose(file);
   free(f_name);
+}
+
+Tensor load_tensor(const char *layer_name, const char *tensor_name) {
+  Tensor t = malloc(sizeof(struct Tensor));
+
+  char *f_name = NULL;
+  asprintf(&f_name, "%s_%s.bin", layer_name, tensor_name);
+
+  FILE *file= fopen(f_name, "w");
+
+  fread(&t->width, sizeof(int), 1, file);
+  fread(&t->height, sizeof(int), 1, file);
+  fread(&t->depth, sizeof(int), 1, file);
+
+  t->data = malloc(sizeof(float) * t->width * t->height * t->depth);
+  fread(t->data, sizeof(float), t->width * t->height * t->depth, file);
+
+  fclose(file);
+  free(f_name);
+
+  return t;
 }
 
 #endif
