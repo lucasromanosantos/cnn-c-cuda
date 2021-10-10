@@ -126,11 +126,11 @@ void save_model() {
   save_tensor(conv_1->in, "conv_1", "in");
   save_tensor(conv_1->out, "conv_1", "out");
 
-  FILE *file = fopen("conv_1_params", "w");
-  fwrite(&conv_1->stride, sizeof(int), 1, file);
-  fwrite(&conv_1->number_of_filters, sizeof(int), 1, file);
-  fwrite(&conv_1->size_of_filter, sizeof(int), 1, file);
-  fclose(file);
+  FILE *file_1 = fopen("conv_1_params", "w");
+  fwrite(&conv_1->stride, sizeof(int), 1, file_1);
+  fwrite(&conv_1->number_of_filters, sizeof(int), 1, file_1);
+  fwrite(&conv_1->size_of_filter, sizeof(int), 1, file_1);
+  fclose(file_1);
 
   for (int i = 0; i < conv_1->number_of_filters; i++) {
     char *name = NULL;
@@ -158,6 +158,30 @@ void save_model() {
 
     free(name);
   }
+
+  save_tensor(relu_2->grads_in, "relu_2", "grads_in");
+  save_tensor(relu_2->in, "relu_2", "in");
+  save_tensor(relu_2->out, "relu_2", "out");
+
+  save_tensor(pool_3->grads_in, "pool_3", "grads_in");
+  save_tensor(pool_3->in, "pool_3", "in");
+  save_tensor(pool_3->out, "pool_3", "out");
+
+  FILE *file_3 = fopen("pool_3_params", "w");
+  fwrite(&pool_3->stride, sizeof(int), 1, file_3);
+  fwrite(&pool_3->size_of_filter, sizeof(int), 1, file_3);
+  fclose(file_3);
+
+  save_tensor(fc_4->grads_in, "fc_4", "grads_in");
+  save_tensor(fc_4->in, "fc_4", "in");
+  save_tensor(fc_4->out, "fc_4", "out");
+  save_tensor(fc_4->weights, "fc_4", "weights");
+
+  FILE *file_4 = fopen("fc_4_params", "w");
+  fwrite(&fc_4->input, sizeof(float), OUT_SIZE, file_4);
+  fwrite(&fc_4->gradients, sizeof(float), OUT_SIZE, file_4);
+  fwrite(&fc_4->old_gradients, sizeof(float), OUT_SIZE, file_4);
+  fclose(file_4);
 }
 
 void load_model() {
@@ -165,11 +189,11 @@ void load_model() {
   conv_1->in = load_tensor("conv_1", "in");
   conv_1->out = load_tensor("conv_1", "out");
 
-  FILE *file = fopen("conv_1_params", "r");
-  fread(&conv_1->stride, sizeof(int), 1, file);
-  fread(&conv_1->number_of_filters, sizeof(int), 1, file);
-  fread(&conv_1->size_of_filter, sizeof(int), 1, file);
-  fclose(file);
+  FILE *file_1 = fopen("conv_1_params", "r");
+  fread(&conv_1->stride, sizeof(int), 1, file_1);
+  fread(&conv_1->number_of_filters, sizeof(int), 1, file_1);
+  fread(&conv_1->size_of_filter, sizeof(int), 1, file_1);
+  fclose(file_1);
 
   conv_1->filters = malloc(conv_1->number_of_filters * sizeof(Tensor));
   for (int i = 0; i < conv_1->number_of_filters; i++) {
@@ -200,6 +224,33 @@ void load_model() {
 
     free(name);
   }
+
+  relu_2->grads_in = load_tensor("relu_2", "grads_in");
+  relu_2->in = load_tensor("relu_2", "in");
+  relu_2->out = load_tensor("relu_2", "out");
+
+  pool_3->grads_in = load_tensor("pool_3", "grads_in");
+  pool_3->in = load_tensor("pool_3", "in");
+  pool_3->out = load_tensor("pool_3", "out");
+
+  FILE *file_3 = fopen("pool_3_params", "r");
+  fread(&pool_3->stride, sizeof(int), 1, file_3);
+  fread(&pool_3->size_of_filter, sizeof(int), 1, file_3);
+  fclose(file_3);
+
+  fc_4->grads_in = load_tensor("fc_4", "grads_in");
+  fc_4->in = load_tensor("fc_4", "in");
+  fc_4->out = load_tensor("fc_4", "out");
+  fc_4->weights = load_tensor("fc_4", "weights");
+
+  FILE *file_4 = fopen("fc_4_params", "r");
+  fc_4->input = malloc(sizeof(float) * OUT_SIZE);
+  fc_4->gradients = malloc(sizeof(float) * OUT_SIZE);
+  fc_4->old_gradients = malloc(sizeof(float) * OUT_SIZE);
+  fread(&fc_4->input, sizeof(float), OUT_SIZE, file_4);
+  fread(&fc_4->gradients, sizeof(float), OUT_SIZE, file_4);
+  fread(&fc_4->old_gradients, sizeof(float), OUT_SIZE, file_4);
+  fclose(file_4);
 }
 
 int main() {
