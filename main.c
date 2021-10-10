@@ -3,7 +3,7 @@
 #include <math.h>
 #include <float.h>
 #include <time.h>
-
+#include <unistd.h>
 #define USE_MNIST_LOADER
 #define MNIST_DOUBLE
 #include "mnist.h"
@@ -119,7 +119,21 @@ void inference() {
     printf("case %d => inference: %d, correct: %d\n", i, index, test_set[i].label);
   }
   printf("%d of %u correct. err = %f\n", correct, test_cnt, (float) correct / test_cnt);
+}
 
+void save_model() {
+  save_tensor(conv_1->grads_in, "conv_1", "grads_in");
+  save_tensor(conv_1->in, "conv_1", "in");
+  save_tensor(conv_1->out, "conv_1", "out");
+
+  for (int i = 0; i < conv_1->number_of_filters; i++) {
+    char *name = NULL;
+    asprintf(&name, "filters_%d", i);
+
+    save_tensor(conv_1->filters[i], "conv_1", name);
+
+    free(name);
+  }
 }
 
 int main() {
@@ -129,7 +143,4 @@ int main() {
   initialize_cnn();
   printf("3. training...\n");
   train();
-  printf("4. inference...\n");
-  inference();
-  printf("===== end!\n");
 }
