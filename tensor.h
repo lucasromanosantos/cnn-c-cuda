@@ -60,7 +60,7 @@ char save_tensor(Tensor t, const char *layer_name, const char *tensor_name){
   printf("sizeof tensor is %d bytes\n", tensor_size);
 
   char *f_name = NULL;
-  asprinf(&f_name, "%s_%s.bin", layer_name, tensor_name);
+  asprintf(&f_name, "%s_%s.bin", layer_name, tensor_name);
 
   FILE * file= fopen(f_name, "w");
 
